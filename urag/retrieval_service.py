@@ -3,7 +3,7 @@ from typing import Optional
 
 import loguru
 
-from datasource.vector_factory import Vector
+from metaknowledge.datasource.vector_factory import Vector
 from entities.retrieval_methods import RetrievalMethod
 from models.reranker import RankerApi
 
@@ -170,3 +170,5 @@ class RetrievalService:
     @staticmethod
     def escape_query_for_search(query: str) -> str:
         return query.replace('"', '\\"')
+    
+    

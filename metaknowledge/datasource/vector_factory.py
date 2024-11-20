@@ -41,8 +41,11 @@ class Vector:
     def get_vector_factory(vector_type: str) -> type[AbstractVectorFactory]:
         match vector_type:
             case VectorType.CHROMA:
-                from embedding.datasource.vdb.chroma.chroma_vector import ChromaVectorFactory
+                from datasource.vdb.chroma.chroma_vector import ChromaVectorFactory
                 return ChromaVectorFactory
+            case VectorType.QDRANT:
+                from datasource.vdb.qdrant.qdrant_vector import QdrantVectorFactory
+                return QdrantVectorFactory
             case _:
                 raise ValueError(f"Vector store {vector_type} is not supported.")
 

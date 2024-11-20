@@ -1,7 +1,7 @@
 from itertools import islice
 from typing import List
 import loguru
-from metaknowledge.datasource.retrieval_service import RetrievalService
+from urag.retrieval_service import RetrievalService
 from entities.document import Document
 from models.llm import LLMApi
 from prompt.search_prompt import _rewrite_question_qa_prompt,_rewrite_question_qa_prompt_zh,_rag_system_prompt_zh,_rag_system_prompt,_rag_qa_prompt,_rag_qa_prompt_zh
@@ -24,7 +24,9 @@ class RAGService():
     def _self_rag(self):
         pass
     
-
+    def _rag_fusion(self):
+        ##https://mp.weixin.qq.com/s/_IHUdaEOYCwmfBrz0s3ohA
+        pass
     
     def ddg_search_text(self,query:str, max_results=5) -> List[Document]:
         from duckduckgo_search import DDGS
@@ -66,9 +68,7 @@ class RAGService():
         response_dict = LLMApi.call_llm(prompt=messages,llm_type=model_provider,model_name=model_name,stream=stream)
         return response_dict
                 
-        
 
-    
     def _build_prompt(self, query:str):
         contexts = self._retrieve(query)
         if not self.history:
@@ -83,9 +83,6 @@ class RAGService():
                 )
         )
         return qa_prompt
-    
-
-    
         
     def rag(self,query):
         ##query preprocessing 什么扩展、改写等等

@@ -1,13 +1,15 @@
 ##Query预处理 主要重写 扩写等等
 
+from typing import List
 import loguru
 from models.llm import LLMApi
 from prompt.search_prompt import _rewrite_question_qa_prompt,_rewrite_question_qa_prompt_zh,_rag_system_prompt_zh,_rag_system_prompt,_rag_qa_prompt,_rag_qa_prompt_zh
-from urag.utils.utils import contains_chinese
+from urag.utils.utils import contains_chinese, reduce_tokens
 
 class QueryProcessor(object):
     def __init__(self):
         self.desc = "Prompt for query processing"
+        self.question_history = []
     def __str__(self) -> str:
         return self.desc
     
@@ -30,7 +32,7 @@ class QueryProcessor(object):
                 messages=self.question_history + [{"role": "user", "content": user_prompt}],
                 max_tokens=512,
             )
-            self.question_history = self.reduce_tokens(self.question_history)
+            self.question_history = reduce_tokens(self.question_history)
             # Append the user question to the rewrite question history.
             self.question_history.append({"role": "user", "content": user_prompt})
 

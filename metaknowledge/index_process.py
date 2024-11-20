@@ -6,9 +6,7 @@ import loguru
 from tqdm import tqdm
 from datasource.vector_factory import Vector
 from entities.document import Document
-from models.llm import LLMApi
-# from parser.extract_processor import ExtractProcessor
-from utils.helper import MeasureExecutionTime, get_directory_all_markdown_files, single_measure_execution_time
+from utils.helper import get_directory_all_markdown_files
 
 
 class IndexProcess():
