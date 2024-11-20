@@ -12,7 +12,7 @@
 * https://huggingface.co/learn/cookbook/zh-CN/advanced_rag
 * https://huggingface.co/learn/cookbook/zh-CN/rag_evaluation RAG评估体系
 * [LightRAG](https://github.com/HKUDS/LightRAG)
-* 开源地址：https://github.com/BUAADreamer/EasyRAG
+* 开源地址：https://github.com/BUAADreamer/EasyRAG 查询改写、图像数据处理、分块策略、元数据利用、密集检索、稀疏检索、重排、排序融合、提示词优化、上下文压缩 业务（金融 法律、医学和建筑四大行业的评测）和开源数据集评测  溯源等等所有关于RAG系统的业务指标
 * 技术报告：https://github.com/BUAADreamer/EasyRAG/blob/master/assets/技术报告.pdf
 * PPT：https://github.com/BUAADreamer/EasyRAG/blob/master/assets/PPT.pdf
 * 论文链接：EasyRAG: Efficient Retrieval-Augmented Generation Framework for Automated Network Operations
