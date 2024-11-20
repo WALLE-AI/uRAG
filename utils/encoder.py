@@ -16,7 +16,6 @@ from pydantic.networks import AnyUrl, NameEmail
 from pydantic.types import SecretBytes, SecretStr
 from pydantic_core import Url
 from pydantic_extra_types.color import Color
-import tiktoken
 
 
 

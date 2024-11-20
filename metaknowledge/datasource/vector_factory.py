@@ -4,8 +4,8 @@ from typing import Any, Optional
 
 from chromadb import Embeddings
 
-from embedding.datasource.vector_base import BaseVector
-from embedding.datasource.vector_type import VectorType
+from datasource.vector_base import BaseVector
+from datasource.vector_type import VectorType
 from entities.document import Document
 
 

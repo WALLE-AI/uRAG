@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "urag"
+version = "v0.0.1"
+description = "urag"
+authors = ["WALL-AI <gaojing850063636@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+loguru = "^0.7.2"
+python-dotenv = "^1.0.1"
+chromadb = "^0.5.20"
+aiohttp = "^3.11.6"
+transformers = "^4.46.3"
+openai = "^1.54.5"
+tiktoken = "^0.8.0"
+pydantic-extra-types = "^2.10.0"
+pillow = "^11.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -3,9 +3,8 @@ import asyncio
 import json
 import os
 import time
-from typing import List
+from typing import List, Union
 import aiohttp
-from aiohttp_retry import Union
 import loguru
 import numpy as np
 import requests
