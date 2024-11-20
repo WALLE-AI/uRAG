@@ -1,4 +1,3 @@
-import datetime
 from itertools import islice
 from typing import List
 import loguru
@@ -7,17 +6,7 @@ from entities.document import Document
 from models.llm import LLMApi
 from prompt.search_prompt import _rewrite_question_qa_prompt,_rewrite_question_qa_prompt_zh,_rag_system_prompt_zh,_rag_system_prompt,_rag_qa_prompt,_rag_qa_prompt_zh
 
-REDUCE_TOKEN_FACTOR = 0.5  # Reduce the token occupancy to less than the model upper tokens.
-TOKEN_TO_CHAR_RATIO = 4  # The ratio of the number of tokens to the number of characters.
-MODEL_TOKEN_LIMIT = {
-    "gpt-3.5-turbo": 4096,
-    "gpt-3.5-turbo-16k": 16384,
-    "gpt-3.5-turbo-1106": 16384,
-    "gpt-4": 8192,
-    "gpt-4-32k": 32768,
-    "gpt-4-1106-preview": 128000,
-    "gpt-4-vision-preview": 128000,
-}
+
 
 class RAGService():
     def __init__(self,collection_name):
@@ -35,21 +24,7 @@ class RAGService():
     def _self_rag(self):
         pass
     
-    def reduce_tokens(self, history: List[dict]):
-        """If the token occupancy is too high, we will remove the early history."""
-        history_content_lens = [len(i.get("content", "").replace(" ", "")) for i in history if i]
-        if len(history) > 5 and sum(history_content_lens) / TOKEN_TO_CHAR_RATIO > self.token_upper_limit:
-            count = 0
-            while (
-                    sum(history_content_lens) / TOKEN_TO_CHAR_RATIO >
-                    self.token_upper_limit * REDUCE_TOKEN_FACTOR
-                    and sum(history_content_lens) > 0
-            ):
-                count += 1
-                del history[1:3]
-                history_content_lens = [len(i.get("content", "").replace(" ", "")) for i in history if i]
-            loguru.logger.warning(f"To prevent token over-limit, model forgotten the early {count} turns history.")
-        return history
+
     
     def ddg_search_text(self,query:str, max_results=5) -> List[Document]:
         from duckduckgo_search import DDGS
@@ -92,17 +67,7 @@ class RAGService():
         return response_dict
                 
         
-    def contains_chinese(self,string):
-        """Check if the string contains Chinese characters."""
-        return any(self.is_chinese(c) for c in string)
-    
-    def is_chinese(self,uchar):
-        """Check if the character is Chinese."""
-        return '\u4e00' <= uchar <= '\u9fa5'
-    
-    def replace_today(prompt:str) ->str:
-        today = datetime.datetime.today().strftime("%Y-%m-%d")
-        return prompt.replace("{current_date}", today)
+
     
     def _build_prompt(self, query:str):
         contexts = self._retrieve(query)
@@ -119,37 +84,7 @@ class RAGService():
         )
         return qa_prompt
     
-    def _rewrite_question(self, query):
-        """
-        Gets rewrite question based on the query and response. send rewrite question to the search engine.
-        """
 
-        try:
-            prompt = _rewrite_question_qa_prompt_zh if self.contains_chinese(query) else _rewrite_question_qa_prompt
-            user_prompt = f"{prompt}\n\n{query}"
-            loguru.logger.debug(f"rewrite_question prompt: {user_prompt}")
-            response = self._call_llm(
-                model_provider="openrouter",
-                model_name="qwen/qwen-2.5-7b-instruct",
-                messages=self.question_history + [{"role": "user", "content": user_prompt}],
-                max_tokens=512,
-            )
-            self.question_history = self.reduce_tokens(self.question_history)
-            # Append the user question to the rewrite question history.
-            self.question_history.append({"role": "user", "content": user_prompt})
-
-            new_question = response.choices[0].message.content
-            loguru.logger.debug(f"question rewrite result: {new_question}")
-            return new_question
-        except Exception as e:
-            # For any exceptions, we will just return an empty list.
-            loguru.logger.error(
-                "encountered error while generating rewrite question"
-            )
-            return query
-    
-    def expand_query(self, query):
-        pass
     
         
     def rag(self,query):

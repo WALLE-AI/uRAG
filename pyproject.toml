@@ -16,6 +16,7 @@ openai = "^1.54.5"
 tiktoken = "^0.8.0"
 pydantic-extra-types = "^2.10.0"
 pillow = "^11.0.0"
+duckduckgo-search = "^6.3.5"
 
 
 [build-system]
