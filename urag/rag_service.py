@@ -5,18 +5,25 @@ from urag.retrieval_service import RetrievalService
 from entities.document import Document
 from models.llm import LLMApi
 from prompt.search_prompt import _rewrite_question_qa_prompt,_rewrite_question_qa_prompt_zh,_rag_system_prompt_zh,_rag_system_prompt,_rag_qa_prompt,_rag_qa_prompt_zh
-
-
+from urag.utils.utils import get_yaml_data
 
 class RAGService():
-    def __init__(self,collection_name):
+    def __init__(self):
         self.desc = "RAG retriever based on transformer model"
-        self.collection_name = collection_name
+        self.config = self._init_config()
+        self.collection_name = self.config["collection_name"]
         self.token_upper_limit = 8196
         self.history = []
         self.question_history=[]
         self.should_do_rewrite_question = False
         self.enable_history = False
+        
+    def _init_config(self):
+        config_path = "config/config.yaml"
+        config = get_yaml_data(config_path)
+        for key in config:
+            loguru.logger.info(f"{key}: {config[key]}")
+        return config
         
     def __str__(self):
         return self.desc
@@ -84,10 +91,12 @@ class RAGService():
         )
         return qa_prompt
         
-    def rag(self,query):
+    def rag_pipline_run(self,query):
         ##query preprocessing 什么扩展、改写等等
         ##build prompt few-shot
         ##execute llm 
         ##potsprocess response
         pass
+    
+    
     

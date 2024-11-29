@@ -1,0 +1,44 @@
+#智能文本解析器,主要按页码解析，ocr方案
+extractor_type: llama_index
+
+# 分块策略
+split_type: 0 # 0-->Sentence 1-->Hierarchical
+chunk_size: 1024
+chunk_overlap: 200
+
+# 密集检索器参数
+reindex: false  # 是否从头开始构建索引
+embedding_name: 
+vector_size: 
+embedding_cache_path: "embedding cache" 
+collection_name: "" # vector storgdb collection名字
+threshold_score: 0.6
+
+##设置向量数据库,
+vector_type: chroma #
+
+
+
+
+
+
+##LLM模型
+llm_name: "glm-4"
+
+
+# 上下文压缩参数
+compress_method: "" # bm25_extract llmlingua longllmlingua
+compress_rate: 0.5
+
+
+# 稀疏检索器参数
+bm25_type: 0 # 0-->官方实现 1-->bm25s实现，速度更快
+
+
+# 重排器参数
+r_topk: 6 # 精排topk
+r_topk_1: 6 # 精排后Fusion的topk
+reranker_name: 
+use_reranker: 2 # 0-->不使用 1-->ST的普通Reranker 2-->bge LLM Reranker
+r_embed_bs: 32
+r_use_efficient: 0 # 0-->不加速 1-->使用最大值选择方法加速 2-->使用熵选择方法加速

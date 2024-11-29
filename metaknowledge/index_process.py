@@ -18,7 +18,7 @@ class IndexProcess():
     def __str__(self) -> str:
         return self.desc
     
-    def extract_text(self):
+    def extract_text(self,extr_type:str):
         # docs = ExtractProcessor.extract(self.file_path,self.etl_type)
         # return self._preproces_docs_metadata(docs)
         ##调用docparse模块直接得到chunk
