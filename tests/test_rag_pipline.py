@@ -1,8 +1,10 @@
+from config.config import init_config
 from urag.rag_service import RAGService
 
 
-def test_rag_pipline():
+def rag_pipline():
+    config = init_config()
     query = "建造大模型"
-    rag = RAGService()
+    rag = RAGService(config)
     rag.rag_pipline_run(query)
     

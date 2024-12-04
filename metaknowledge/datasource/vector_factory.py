@@ -4,9 +4,9 @@ from typing import Any, Optional
 
 from chromadb import Embeddings
 
-from datasource.vector_base import BaseVector
-from datasource.vector_type import VectorType
+from metaknowledge.datasource.vector_type import VectorType
 from entities.document import Document
+from metaknowledge.datasource.vector_base import BaseVector
 
 
 class AbstractVectorFactory(ABC):

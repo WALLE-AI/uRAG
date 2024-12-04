@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ExtractorMethod(Enum):
-    SEMANTIC_SEARCH = "llama_index"
-    FULL_TEXT_SEARCH = "lanchain"
-    HYBRID_SEARCH = "udocparser"
+    LLMAMA_INDEX = "llama_index"
+    LANGCHAIN = "lanchain"
+    UNSTRUCTURED ="unstructured "
+    UDOCPARSER = "udocparser"

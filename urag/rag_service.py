@@ -5,25 +5,17 @@ from urag.retrieval_service import RetrievalService
 from entities.document import Document
 from models.llm import LLMApi
 from prompt.search_prompt import _rewrite_question_qa_prompt,_rewrite_question_qa_prompt_zh,_rag_system_prompt_zh,_rag_system_prompt,_rag_qa_prompt,_rag_qa_prompt_zh
-from urag.utils.utils import get_yaml_data
 
-class RAGService():
-    def __init__(self):
+class RAGService(object):
+    def __init__(self,config):
         self.desc = "RAG retriever based on transformer model"
-        self.config = self._init_config()
+        self.config = config
         self.collection_name = self.config["collection_name"]
         self.token_upper_limit = 8196
         self.history = []
         self.question_history=[]
         self.should_do_rewrite_question = False
         self.enable_history = False
-        
-    def _init_config(self):
-        config_path = "config/config.yaml"
-        config = get_yaml_data(config_path)
-        for key in config:
-            loguru.logger.info(f"{key}: {config[key]}")
-        return config
         
     def __str__(self):
         return self.desc
@@ -34,30 +26,6 @@ class RAGService():
     def _rag_fusion(self):
         ##https://mp.weixin.qq.com/s/_IHUdaEOYCwmfBrz0s3ohA
         pass
-    
-    def ddg_search_text(self,query:str, max_results=5) -> List[Document]:
-        from duckduckgo_search import DDGS
-        search_results = []
-        reference_results = []
-        with DDGS() as ddgs:
-            ddgs_gen = ddgs.text(query, backend="lite")
-            for r in islice(ddgs_gen, max_results):
-                search_results.append(r)
-        for idx, result in enumerate(search_results):
-            loguru.logger.debug(f"搜索结果{idx + 1}：{result}")
-            ##[result["body"], result["href"]]
-            metadata = {
-                "query": query,
-                "name": result["title"],
-                "url": result["href"]
-
-            }
-            doc = Document(
-                page_content=result["body"],
-                metadata=metadata
-            )
-            reference_results.append(doc)
-        return reference_results
     
     def _rig_rag(self):
         pass
@@ -96,7 +64,7 @@ class RAGService():
         ##build prompt few-shot
         ##execute llm 
         ##potsprocess response
-        pass
+        return query
     
     
     
