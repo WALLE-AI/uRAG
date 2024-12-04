@@ -4,8 +4,8 @@ import uuid
 
 import loguru
 from tqdm import tqdm
-from datasource.vector_factory import Vector
 from entities.document import Document
+from metaknowledge.datasource.vector_factory import Vector
 from utils.helper import get_directory_all_markdown_files
 
 

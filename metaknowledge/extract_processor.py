@@ -18,9 +18,9 @@ class ExtractProcessor:
     
     @classmethod
     def extract(
-        cls, file_path: str,config
+        cls, file_or_dir_path: str,config
     ) -> list[Document]:
-        file_extension = _is_file_format(file_path)
+        file_extension = _is_file_format(file_or_dir_path)
         if config['extractor_type'] == ExtractorMethod.LLMAMA_INDEX.value:
             ##采用llama_index进行文本解析、chunk
             pass
@@ -33,8 +33,9 @@ class ExtractProcessor:
             pass
         elif config['extractor_type'] == ExtractorMethod.UNSTRUCTURED.value:
             if file_extension in {".md", ".markdown"}:
-                extractor = UnstructuredMarkdownExtractor(file_path, "unstructured_api_url")
+                extractor = UnstructuredMarkdownExtractor(file_or_dir_path, "unstructured_api_url")
             elif file_extension in {".docx",".doc"}:
-                extractor = UnstructuredWordExtractor(file_path, "unstructured_api_url")
+                extractor = UnstructuredWordExtractor(file_or_dir_path, "unstructured_api_url")
             elif file_extension == ".pdf":
-                extractor = UnstructuredPdfExtractor(file_path,"unstructured_api_url")
+                extractor = UnstructuredPdfExtractor(file_or_dir_path,"unstructured_api_url")
+        return extractor

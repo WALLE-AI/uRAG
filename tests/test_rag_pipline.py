@@ -8,3 +8,8 @@ def rag_pipline():
     rag = RAGService(config)
     rag.rag_pipline_run(query)
     
+    
+def rag_data_build_parser_to_index():
+    config = init_config()
+    
+    

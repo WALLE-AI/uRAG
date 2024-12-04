@@ -1,5 +1,8 @@
 from entities.document import Document
 from metaknowledge.extractor_base import BaseExtractor
+from llama_index.core import SimpleDirectoryReader
+
+from utils.helper import identify_file_types
 
 
 class LamaIndexExtractor(BaseExtractor):
@@ -14,5 +17,12 @@ class LamaIndexExtractor(BaseExtractor):
         self._file_path = file_path
         self._api_url = api_url
         
-    def pdf_extract(self) -> list[Document]:
-        pass
+    def file_extract(self) -> list[Document]:
+        ##识别出该文件夹中文件类型
+        file_type = identify_file_types(self._file_path)
+        reader = SimpleDirectoryReader(
+        input_dir=self._file_path,
+        recursive=True,
+        required_exts=file_type,
+        )
+        return reader.load_data()
