@@ -5,24 +5,27 @@ import uuid
 import loguru
 from tqdm import tqdm
 from entities.document import Document
+from entities.extractor_type import ExtractorMethod
 from metaknowledge.datasource.vector_factory import Vector
+from metaknowledge.extract_processor import ExtractProcessor
 from utils.helper import get_directory_all_markdown_files
 
 
 class IndexProcess():
-    def __init__(self,file_path,index_name):
+    def __init__(self,file_path,config):
         self.desc = "index processing"
-        self.vdb = Vector(index_name)
+        self.vdb = Vector(config['collection_name'])
         self.file_path = file_path
-        self.etl_type = "Unstructured"
+        self.config = config
     def __str__(self) -> str:
         return self.desc
     
     def extract_text(self):
-        # docs = ExtractProcessor.extract(self.file_path,self.etl_type)
-        # return self._preproces_docs_metadata(docs)
-        ##调用docparse模块直接得到chunk
-        pass
+        if self.config['extractor_type'] == ExtractorMethod.LLMAMA_INDEX.value:
+            docs = ExtractProcessor.extract_llama_index(self.file_path)
+        else:
+            docs = ExtractProcessor.extract(self.file_path)
+        return docs
     
     def _preproces_docs_metadata(self,docs:List[Document]) -> List[Document]:
         file_name = Path(self.file_path).stem.split("_")[-1]

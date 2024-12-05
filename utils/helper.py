@@ -22,36 +22,7 @@ from pathlib import Path
 from typing import NamedTuple, Optional, cast
 
 
-def identify_file_types(file_or_dir_path:str):
-    # 检查路径是否存在且是否为文件夹
-    if not os.path.exists(file_or_dir_path) or not os.path.isdir(file_or_dir_path):
-        return "Path does not exist or is not a directory"
-    file_types = []
-    # 遍历文件夹中的所有文件和子文件夹
-    for item in os.listdir(file_or_dir_path):
-        item_path = os.path.join(file_or_dir_path, item)
-        # 确保是文件而不是文件夹
-        if os.path.isfile(item_path):
-            # 获取文件扩展名
-            _, ext = os.path.splitext(item)
-            # 将扩展名转换为小写，以便统一处理
-            ext = ext.lower()
-            file_types.append(ext)
 
-    return file_types
-
-def is_file_or_directory(file_or_dir_path:str):
-    # 检查路径是否存在
-    if not os.path.exists(file_or_dir_path):
-        return loguru.logger.info(f"Path does not exist {file_or_dir_path}")
-    # 判断是文件还是文件夹
-    if os.path.isfile(file_or_dir_path):
-        return file_or_dir_path
-    elif os.path.isdir(file_or_dir_path):
-        return [os.path.join(file_or_dir_path, file) for file in os.listdir(file_or_dir_path) if os.path.isfile(os.path.join(file_or_dir_path, file))]
-        return "This is a directory"
-    else:
-        return loguru.logger.info("Path is neither a file nor a directory")
 
 
 def cut_sent(para):
