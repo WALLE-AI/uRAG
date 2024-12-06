@@ -59,8 +59,9 @@ class ExtractProcessor:
     @classmethod
     def extract(file_or_dir_path: str,config) -> list[Document]:
         files = is_file_or_directory(file_or_dir_path)
+        docs_list = []
         for file in files:
-            file_extension = _is_file_format(file_or_dir_path)
+            file_extension = _is_file_format(file)
             if config['extractor_type'] == ExtractorMethod.LANGCHAIN.value:
                 ##采用langchain进行文本解析、chunk
                 pass
@@ -69,9 +70,12 @@ class ExtractProcessor:
                 pass
             elif config['extractor_type'] == ExtractorMethod.UNSTRUCTURED.value:
                 if file_extension in {".md", ".markdown"}:
-                    extractor = UnstructuredMarkdownExtractor(file_or_dir_path, "unstructured_api_url")
+                    extractor = UnstructuredMarkdownExtractor(file, "unstructured_api_url")
                 elif file_extension in {".docx",".doc"}:
-                    extractor = UnstructuredWordExtractor(file_or_dir_path, "unstructured_api_url")
+                    extractor = UnstructuredWordExtractor(file, "unstructured_api_url")
                 elif file_extension == ".pdf":
-                    extractor = UnstructuredPdfExtractor(file_or_dir_path,"unstructured_api_url")
+                    extractor = UnstructuredPdfExtractor(file,"unstructured_api_url")
             docs = extractor.extract()
+            docs_list+=docs
+        return docs_list
+        

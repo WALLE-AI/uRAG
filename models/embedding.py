@@ -11,7 +11,6 @@ import requests
 
 from entities.embedding import Embeddings
 from entities.retrieval_methods import EmbeddingInferenceType
-from utils.encoder import num_tokens_from_string
 
 
 class TigEmbeddingApi(Embeddings):

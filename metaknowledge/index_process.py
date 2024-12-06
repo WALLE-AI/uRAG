@@ -14,7 +14,7 @@ from utils.helper import get_directory_all_markdown_files
 class IndexProcess():
     def __init__(self,file_path,config):
         self.desc = "index processing"
-        self.vdb = Vector(config['collection_name'])
+        self.vdb = Vector(config)
         self.file_path = file_path
         self.config = config
     def __str__(self) -> str:

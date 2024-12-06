@@ -6,9 +6,9 @@ import chromadb
 from chromadb import Embeddings, QueryResult, Settings
 from pydantic import BaseModel
 
-from datasource.vector_base import BaseVector
-from datasource.vector_factory import AbstractVectorFactory
-from datasource.vector_type import VectorType
+from metaknowledge.datasource.vector_base import BaseVector
+from metaknowledge.datasource.vector_factory import AbstractVectorFactory
+from metaknowledge.datasource.vector_type import VectorType
 from entities.document import Document
 
 
@@ -114,7 +114,7 @@ class ChromaVector(BaseVector):
 
 
 class ChromaVectorFactory(AbstractVectorFactory):
-    def init_vector(self, collection_name, attributes: list, embeddings: Embeddings) -> BaseVector:
+    def init_vector(self, collection_name) -> BaseVector:
         # if dataset.index_struct_dict:
         #     class_prefix: str = dataset.index_struct_dict["vector_store"]["class_prefix"]
         #     collection_name = class_prefix.lower()

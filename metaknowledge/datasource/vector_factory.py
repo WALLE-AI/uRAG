@@ -11,7 +11,7 @@ from metaknowledge.datasource.vector_base import BaseVector
 
 class AbstractVectorFactory(ABC):
     @abstractmethod
-    def init_vector(self, collection_name, attributes: list, embeddings: Embeddings) -> BaseVector:
+    def init_vector(self, collection_name: str) -> BaseVector:
         raise NotImplementedError
 
     @staticmethod
@@ -21,30 +21,28 @@ class AbstractVectorFactory(ABC):
     
     
 class Vector:
-    def __init__(self, collection_name, attributes: Optional[list] = None):
-        if attributes is None:
-            attributes = ["doc_id", "dataset_id", "document_id", "doc_hash"]
-        self._collection_name = collection_name
+    def __init__(self,config:dict):
+        self._collection_name = config["collection_name"]
         self._embeddings = self._get_embeddings()
-        self._attributes = attributes
+        self.config = config
         self._vector_processor = self._init_vector()
 
     def _init_vector(self) -> BaseVector:
-        vector_type =os.getenv("VECTOR_STORE")
+        vector_type =self.config['vector_type']
         if not vector_type:
             raise ValueError("Vector store must be specified.")
 
         vector_factory_cls = self.get_vector_factory(vector_type)
-        return vector_factory_cls().init_vector(self._collection_name, self._attributes, self._embeddings)
+        return vector_factory_cls().init_vector(self._collection_name)
 
     @staticmethod
     def get_vector_factory(vector_type: str) -> type[AbstractVectorFactory]:
         match vector_type:
             case VectorType.CHROMA:
-                from datasource.vdb.chroma.chroma_vector import ChromaVectorFactory
+                from metaknowledge.datasource.vdb.chroma.chroma_vector import ChromaVectorFactory
                 return ChromaVectorFactory
             case VectorType.QDRANT:
-                from datasource.vdb.qdrant.qdrant_vector import QdrantVectorFactory
+                from metaknowledge.datasource.vdb.qdrant.qdrant_vector import QdrantVectorFactory
                 return QdrantVectorFactory
             case _:
                 raise ValueError(f"Vector store {vector_type} is not supported.")

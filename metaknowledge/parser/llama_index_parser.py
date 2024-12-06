@@ -3,7 +3,6 @@ from entities.document import Document
 from metaknowledge.extractor_base import BaseExtractor
 from llama_index.core import SimpleDirectoryReader
 
-from utils.helper import identify_file_types
 
 
 class LamaIndexExtractor(BaseExtractor):
