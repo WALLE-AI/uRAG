@@ -14,5 +14,5 @@ class LlamaChainExtractor(BaseExtractor):
         self._file_path = file_path
         self._api_url = api_url
         
-    def pdf_extract(self) -> list[Document]:
+    def extract(self) -> list[Document]:
         pass

@@ -19,3 +19,4 @@ class EmbeddingInferenceType(Enum):
     FLAG_EMBEDDING = "flagembedding"
     FAST_EMBED = "fastembed"
     TGI_EMBEDDING_API = "tig_embedding_api"
+    HUGGINGFACE_EMBEDDING="huggingface_embedding"

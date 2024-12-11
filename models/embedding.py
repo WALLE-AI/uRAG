@@ -11,6 +11,18 @@ import requests
 
 from entities.embedding import Embeddings
 from entities.retrieval_methods import EmbeddingInferenceType
+import tiktoken
+
+
+##TODO:换成GPT2 tokenzier
+encoder = tiktoken.get_encoding("cl100k_base")
+
+def num_tokens_from_string(string: str) -> int:
+    """Returns the number of tokens in a text string."""
+    try:
+        return len(encoder.encode(string))
+    except Exception:
+        return 0
 
 
 class TigEmbeddingApi(Embeddings):
@@ -121,12 +133,42 @@ class FlagEmbeddingInference(Embeddings):
         for i in range(0, len(texts), batch_size):
             res.extend(cls()._model.encode(texts[i:i + batch_size]).tolist())
         return np.array(res), token_count
+class HuggingfaceEmbeddingInference(Embeddings):
+    def __init__(self):
+        self.desc = "embedding inference huggingface"
+        self._model = None
+        self.init_model()
+    
+    def init_model(self):
+        from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+        try:
+            self._model = HuggingFaceEmbedding(model_name="BAAI/bge-small-zh")
+        except ValueError as e:
+            loguru.logger.info(f"embedding init error:{e}")
+            
+    @classmethod
+    def embed_query(cls,text:str) -> list[float]:
+        token_count = num_tokens_from_string(text)
+        return cls()._model.get_text_embedding(text), token_count
+    @classmethod
+    def embed_documents(cls,text:List[str]) ->list[list[float]]:
+        batch_size=32
+        texts = [os.truncate(t, 2048) for t in text]
+        token_count = 0
+        for t in texts:
+            token_count += num_tokens_from_string(t)
+        res = []
+        for i in range(0, len(texts), batch_size):
+            res.extend(cls()._model.get_text_embedding(texts[i:i + batch_size]).tolist())
+        return np.array(res), token_count
+  
+  
     
 class EmbeddingModel():
     def __init__(self):
         pass
     @classmethod
-    def get_embedding(cls,inference_type)->Union[FlagEmbeddingInference,FastEmbedInference,TigEmbeddingApi]:
+    def get_embedding(cls,inference_type)->Union[FlagEmbeddingInference,FastEmbedInference,TigEmbeddingApi,HuggingfaceEmbeddingInference]:
         if inference_type == EmbeddingInferenceType.FLAG_EMBEDDING.value:
             return FlagEmbeddingInference
         elif inference_type == EmbeddingInferenceType.SENTENCE_TRANSFORMER.value:
@@ -135,5 +177,11 @@ class EmbeddingModel():
             return FastEmbedInference
         elif inference_type == EmbeddingInferenceType.TGI_EMBEDDING_API.value:
             return TigEmbeddingApi
+        elif inference_type == EmbeddingInferenceType.HUGGINGFACE_EMBEDDING.value:
+            return HuggingfaceEmbeddingInference
         else:
             loguru.logger.info(f"no support embedding inference type")
+            
+
+    
+    

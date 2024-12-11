@@ -5,7 +5,6 @@ import uuid
 import loguru
 from tqdm import tqdm
 from entities.document import Document
-from entities.extractor_type import ExtractorMethod
 from metaknowledge.datasource.vector_factory import Vector
 from metaknowledge.extract_processor import ExtractProcessor
 from utils.helper import get_directory_all_markdown_files
@@ -21,10 +20,7 @@ class IndexProcess():
         return self.desc
     
     def extract_text(self):
-        if self.config['extractor_type'] == ExtractorMethod.LLMAMA_INDEX.value:
-            docs = ExtractProcessor.extract_llama_index(self.file_path)
-        else:
-            docs = ExtractProcessor.extract(self.file_path)
+        docs = ExtractProcessor.extract(self.file_path,self.config)
         return docs
     
     def _preproces_docs_metadata(self,docs:List[Document]) -> List[Document]:
