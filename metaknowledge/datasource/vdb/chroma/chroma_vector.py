@@ -40,9 +40,10 @@ class ChromaConfig(BaseModel):
 
 class ChromaVector(BaseVector):
 
-    def __init__(self, collection_name: str, config: ChromaConfig):
-        super().__init__(collection_name)
-        self._client_config = config
+    def __init__(self, chroma_config: ChromaConfig,config):
+        super().__init__(config["collection_name"])
+        self._client_config = chroma_config
+        self._config = config
         self._client = chromadb.HttpClient(**self._client_config.to_chroma_params())
 
     def get_type(self) -> str:
@@ -63,7 +64,8 @@ class ChromaVector(BaseVector):
         uuids = self._get_uuids(documents)
         texts = [d.page_content for d in documents]
         metadatas = [d.metadata for d in documents]
-
+        # ##TODO是否在这里判断chunk块长度超过max tokens
+        # embeddings = [embedding[0] for embedding in embeddings]
         collection = self._client.get_or_create_collection(self._collection_name)
         collection.upsert(ids=uuids, documents=texts, embeddings=embeddings, metadatas=metadatas)
 
@@ -114,7 +116,7 @@ class ChromaVector(BaseVector):
 
 
 class ChromaVectorFactory(AbstractVectorFactory):
-    def init_vector(self, collection_name) -> BaseVector:
+    def init_vector(self, config:dict) -> BaseVector:
         # if dataset.index_struct_dict:
         #     class_prefix: str = dataset.index_struct_dict["vector_store"]["class_prefix"]
         #     collection_name = class_prefix.lower()
@@ -125,8 +127,7 @@ class ChromaVectorFactory(AbstractVectorFactory):
         #     dataset.index_struct = json.dumps(index_struct_dict)
 
         return ChromaVector(
-            collection_name=collection_name,
-            config=ChromaConfig(
+            chroma_config=ChromaConfig(
                 host=os.getenv("CHROMA_HOST"),
                 port=os.getenv("CHROMA_PORT"),
                 tenant= chromadb.DEFAULT_TENANT,
@@ -134,4 +135,5 @@ class ChromaVectorFactory(AbstractVectorFactory):
                 auth_provider="chromadb.auth.token_authn.TokenAuthClientProvider",
                 auth_credentials="starchat123456",
             ),
+            config=config
         )

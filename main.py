@@ -8,5 +8,5 @@ load_dotenv()
 
 if __name__ == "__main__":
     loguru.logger.info("urag starting...")
-    test_huggingface_embedding()
+    rag_data_build_parser_to_index()
 

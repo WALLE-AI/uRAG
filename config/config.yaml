@@ -9,6 +9,7 @@ chunk_overlap: 200
 # 密集检索器参数
 reindex: false  # 是否从头开始构建索引
 embedding_name: 
+embedding_max_input_length: 8192
 vector_size: 
 embedding_cache_path: "embedding cache" 
 collection_name: "Vector_index_96974a26_8dcd_4500_b2c3_4259a61f313a_Node_test" # vector storgdb collection名字

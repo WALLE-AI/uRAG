@@ -12,60 +12,59 @@ from llama_index.core.indices.keyword_table.utils import simple_extract_keywords
 from llama_index.core.schema import NodeWithScore, BaseNode, IndexNode
 from llama_index.core.storage.docstore import BaseDocumentStore
 from llama_index.core.vector_stores import VectorStoreQuery
-from llama_index.vector_stores.qdrant import QdrantVectorStore
 from nltk import PorterStemmer
 from rank_bm25 import BM25Okapi
 
 logger = logging.getLogger(__name__)
 
 
-class QdrantRetriever(BaseRetriever):
-    def __init__(
-            self,
-            vector_store: QdrantVectorStore,
-            embed_model: BaseEmbedding,
-            similarity_top_k: int = 2,
-            filters=None
-    ) -> None:
-        self._vector_store = vector_store
-        self._embed_model = embed_model
-        self._similarity_top_k = similarity_top_k
-        self.filters = filters
-        super().__init__()
+# class QdrantRetriever(BaseRetriever):
+#     def __init__(
+#             self,
+#             vector_store: QdrantVectorStore,
+#             embed_model: BaseEmbedding,
+#             similarity_top_k: int = 2,
+#             filters=None
+#     ) -> None:
+#         self._vector_store = vector_store
+#         self._embed_model = embed_model
+#         self._similarity_top_k = similarity_top_k
+#         self.filters = filters
+#         super().__init__()
 
-    async def _aretrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        query_embedding = self._embed_model.get_query_embedding(query_bundle.query_str)
-        vector_store_query = VectorStoreQuery(
-            query_embedding,
-            similarity_top_k=self._similarity_top_k,
-            # filters=self.filters, # qdrant 使用llama_index filter会有问题，原因未知
-        )
-        query_result = await self._vector_store.aquery(
-            vector_store_query,
-            qdrant_filters=self.filters,  # 需要查找qdrant相关用法
-        )
+#     async def _aretrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+#         query_embedding = self._embed_model.get_query_embedding(query_bundle.query_str)
+#         vector_store_query = VectorStoreQuery(
+#             query_embedding,
+#             similarity_top_k=self._similarity_top_k,
+#             # filters=self.filters, # qdrant 使用llama_index filter会有问题，原因未知
+#         )
+#         query_result = await self._vector_store.aquery(
+#             vector_store_query,
+#             qdrant_filters=self.filters,  # 需要查找qdrant相关用法
+#         )
 
-        node_with_scores = []
-        for node, similarity in zip(query_result.nodes, query_result.similarities):
-            node_with_scores.append(NodeWithScore(node=node, score=similarity))
-        return node_with_scores
+#         node_with_scores = []
+#         for node, similarity in zip(query_result.nodes, query_result.similarities):
+#             node_with_scores.append(NodeWithScore(node=node, score=similarity))
+#         return node_with_scores
 
-    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        # 不维护
-        query_embedding = self._embed_model.get_query_embedding(query_bundle.query_str)
-        vector_store_query = VectorStoreQuery(
-            query_embedding,
-            similarity_top_k=self._similarity_top_k,
-        )
-        query_result = self._vector_store.query(
-            vector_store_query,
-            qdrant_filters=self.filters,  # 需要查找qdrant相关用法
-        )
+#     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+#         # 不维护
+#         query_embedding = self._embed_model.get_query_embedding(query_bundle.query_str)
+#         vector_store_query = VectorStoreQuery(
+#             query_embedding,
+#             similarity_top_k=self._similarity_top_k,
+#         )
+#         query_result = self._vector_store.query(
+#             vector_store_query,
+#             qdrant_filters=self.filters,  # 需要查找qdrant相关用法
+#         )
 
-        node_with_scores = []
-        for node, similarity in zip(query_result.nodes, query_result.similarities):
-            node_with_scores.append(NodeWithScore(node=node, score=similarity))
-        return node_with_scores
+#         node_with_scores = []
+#         for node, similarity in zip(query_result.nodes, query_result.similarities):
+#             node_with_scores.append(NodeWithScore(node=node, score=similarity))
+#         return node_with_scores
 
 
 def tokenize_and_remove_stopwords(tokenizer, text, stopwords):

@@ -40,6 +40,7 @@ class LamaIndexExtractor(BaseExtractor):
         ##加入chunk相关逻辑
         nodes = self.llama_index_chunk(documents=docs)
         for node in nodes:
+            node["embedding"]=0.0
             doc = Document(page_content=node.text,metadata=node.to_dict())
             documents.append(doc)
         return documents

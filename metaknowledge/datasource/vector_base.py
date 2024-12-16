@@ -67,7 +67,7 @@ class BaseVector(ABC):
         return texts
 
     def _get_uuids(self, texts: list[Document]) -> list[str]:
-        return [text.metadata['doc_id'] for text in texts]
+        return [text.metadata['id_'] for text in texts]
 
     @property
     def collection_name(self):

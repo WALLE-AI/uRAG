@@ -22,9 +22,9 @@ def rag_data_build_parser_to_index():
     
     
 def test_huggingface_embedding():
-    embedding = EmbeddingModel.get_embedding("huggingface_embedding")
+    embedding = EmbeddingModel.get_embedding("tig_embedding_api")
     text_embedding,tokens = embedding.embed_query("你是谁")
-    
+    loguru.logger.info(f"embedding tokens:{len(text_embedding)}")
     
     
     

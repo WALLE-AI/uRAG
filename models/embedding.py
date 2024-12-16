@@ -32,6 +32,16 @@ class TigEmbeddingApi(Embeddings):
     def __str__(self) -> str:
         return self.des
     
+    @classmethod
+    def get_model_info(cls):
+        url = os.getenv("EMBEDDING_SERVE_HOST") + ':9991/info'
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(url, headers=headers)
+        # 打印响应内容
+        loguru.logger.info(f"Status Code:{response.status_code}")
+        return json.loads(response.text)
+        
+    
     async def asyc_embedding(self,doc):
         url = os.getenv("EMBEDDING_SERVE_HOST") + ':9991/embed'
         headers = {'Content-Type': 'application/json'}

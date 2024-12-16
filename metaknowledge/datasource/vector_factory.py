@@ -11,7 +11,7 @@ from metaknowledge.datasource.vector_base import BaseVector
 
 class AbstractVectorFactory(ABC):
     @abstractmethod
-    def init_vector(self, collection_name: str) -> BaseVector:
+    def init_vector(self, config:dict) -> BaseVector:
         raise NotImplementedError
 
     @staticmethod
@@ -33,7 +33,7 @@ class Vector:
             raise ValueError("Vector store must be specified.")
 
         vector_factory_cls = self.get_vector_factory(vector_type)
-        return vector_factory_cls().init_vector(self._collection_name)
+        return vector_factory_cls().init_vector(self.config)
 
     @staticmethod
     def get_vector_factory(vector_type: str) -> type[AbstractVectorFactory]:
