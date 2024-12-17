@@ -4,6 +4,7 @@ from metaknowledge.extract_processor import ExtractProcessor
 from metaknowledge.index_process import IndexProcess
 from models.embedding import EmbeddingModel
 from urag.rag_service import RAGService
+from urag.retrievers import get_sparse_retrivers
 
 
 def rag_pipline():
@@ -18,7 +19,8 @@ def rag_data_build_parser_to_index():
     index_process = IndexProcess(file_path=file_dir,config=config)
     docs = index_process.extract_text()
     loguru.logger.info(f"docs size:{len(docs)}")
-    index_process.embedding_process_index(docs)
+    # index_process.embedding_process_index(docs)
+    get_sparse_retrivers(config,docs)
     
     
 def test_huggingface_embedding():

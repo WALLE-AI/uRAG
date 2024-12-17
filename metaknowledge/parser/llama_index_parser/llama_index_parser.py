@@ -39,11 +39,12 @@ class LamaIndexExtractor(BaseExtractor):
         docs = reader.load_data()
         ##加入chunk相关逻辑
         nodes = self.llama_index_chunk(documents=docs)
-        for node in nodes:
-            node["embedding"]=0.0
-            doc = Document(page_content=node.text,metadata=node.to_dict())
-            documents.append(doc)
-        return documents
+        # for node in nodes:
+        #     metadata = node.to_dict()
+        #     metadata['metadata']["id_"] = metadata['id_']
+        #     doc = Document(page_content=node.text,metadata=metadata['metadata'])
+        #     documents.append(doc)
+        return nodes
     
     def llama_index_chunk(self,
         documents,

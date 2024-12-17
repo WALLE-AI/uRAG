@@ -34,6 +34,10 @@ compress_rate: 0.5
 
 # 稀疏检索器参数
 bm25_type: 0 # 0-->官方实现 1-->bm25s实现，速度更快
+f_embed_type_1: 1 # 密集检索的文档编码方式
+f_embed_type_2: 2 # 稀疏检索的文档编码方式
+r_embed_type: 1 # 重排的文档编码方式
+f_topk_2: 10
 
 
 # 重排器参数

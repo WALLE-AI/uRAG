@@ -5,17 +5,54 @@ from typing import List, Optional, Callable, cast
 import bm25s
 from llama_index.core import QueryBundle, VectorStoreIndex
 from llama_index.core.base.base_retriever import BaseRetriever
-from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.core.schema import NodeRelationship, TextNode, NodeWithScore
 from llama_index.core.callbacks import CallbackManager
 from llama_index.core.constants import DEFAULT_SIMILARITY_TOP_K
 from llama_index.core.indices.keyword_table.utils import simple_extract_keywords
 from llama_index.core.schema import NodeWithScore, BaseNode, IndexNode
 from llama_index.core.storage.docstore import BaseDocumentStore
-from llama_index.core.vector_stores import VectorStoreQuery
 from nltk import PorterStemmer
 from rank_bm25 import BM25Okapi
 
+from entities.document import Document
+
 logger = logging.getLogger(__name__)
+
+def merge_strings(A, B):
+    # 找到A的结尾和B的开头最长的匹配子串
+    max_overlap = 0
+    min_length = min(len(A), len(B))
+
+    for i in range(1, min_length + 1):
+        if A[-i:] == B[:i]:
+            max_overlap = i
+
+    # 合并A和B，去除重复部分
+    merged_string = A + B[max_overlap:]
+    return merged_string
+
+def get_node_content(node: BaseNode, embed_type=0, nodes: list[TextNode] = None, nodeid2idx: dict = None) -> str:
+    text: str = node.get_content()
+    if embed_type == 6:
+        cur_text = text
+        if cur_text.count("|") >= 5 and cur_text.count("---") == 0:
+            cnt = 0
+            flag = False
+            while True:
+                pre_node_id = node.node.relationships[NodeRelationship.PREVIOUS].node_id
+                pre_node = nodes[nodeid2idx[pre_node_id]]
+                pre_text = pre_node.text
+                cur_text = merge_strings(pre_text, cur_text)
+                cnt += 1
+                if pre_text.count("---") >= 2:
+                    flag = True
+                    break
+                if cnt >= 3:
+                    break
+            if flag:
+                idx = cur_text.index("---")
+                text = cur_text[:idx].strip().split("\n")[-1] + cur_text[idx:]
+    return text
 
 
 # class QdrantRetriever(BaseRetriever):
@@ -65,6 +102,11 @@ logger = logging.getLogger(__name__)
 #         for node, similarity in zip(query_result.nodes, query_result.similarities):
 #             node_with_scores.append(NodeWithScore(node=node, score=similarity))
 #         return node_with_scores
+def load_stopwords(path):
+    with open(path, 'r', encoding='utf-8') as file:
+        stopwords = set([line.strip() for line in file])
+    return stopwords
+
 
 
 def tokenize_and_remove_stopwords(tokenizer, text, stopwords):
@@ -72,6 +114,28 @@ def tokenize_and_remove_stopwords(tokenizer, text, stopwords):
     filtered_words = [word for word in words
                       if word not in stopwords and word != ' ']
     return filtered_words
+
+
+def get_sparse_retrivers(config,nodes):
+    ##其实这种是不是使用ES来做字面匹配与向量相似计算一起，这是自己写也行
+    import jieba
+    sparse_tk = jieba.Tokenizer()
+    stp_words = load_stopwords("urag/stopwords/hit_stopwords.txt")
+    f_topk_2 = config['f_topk_2']
+    f_embed_type_2 = config['f_embed_type_2']
+    bm25_type = config['bm25_type']
+    sparse_retriever = BM25Retriever.from_defaults(
+        nodes=nodes,
+        tokenizer=sparse_tk,
+        similarity_top_k=f_topk_2,
+        stopwords=stp_words,
+        embed_type=f_embed_type_2,
+        bm25_type=bm25_type,
+    )
+    test_text = "地基与基础如何进行质量验收"
+    query_bundle = QueryBundle(query_str=test_text)
+    recall_data = sparse_retriever.retrieve(query_bundle)
+    return sparse_retriever
 
 
 # using jieba to split sentence and remove meaningless words
@@ -218,86 +282,86 @@ class BM25Retriever(BaseRetriever):
         return nodes
 
 
-class HybridRetriever(BaseRetriever):
-    def __init__(
-            self,
-            dense_retriever: QdrantRetriever,
-            sparse_retriever: BM25Retriever,
-            retrieval_type=1,
-            topk=256,
-    ):
-        self.dense_retriever = dense_retriever
-        self.sparse_retriever = sparse_retriever
-        self.retrieval_type = retrieval_type  # 1:dense only 2:sparse only 3:hybrid
-        self.filters = None
-        self.filter_dict = None
-        self.topk = topk
-        super().__init__()
+# class HybridRetriever(BaseRetriever):
+#     def __init__(
+#             self,
+#             dense_retriever: QdrantRetriever,
+#             sparse_retriever: BM25Retriever,
+#             retrieval_type=1,
+#             topk=256,
+#     ):
+#         self.dense_retriever = dense_retriever
+#         self.sparse_retriever = sparse_retriever
+#         self.retrieval_type = retrieval_type  # 1:dense only 2:sparse only 3:hybrid
+#         self.filters = None
+#         self.filter_dict = None
+#         self.topk = topk
+#         super().__init__()
 
-    @classmethod
-    def fusion(self, list_of_list_ranks_system, topk=256):
-        all_nodes = []
+#     @classmethod
+#     def fusion(self, list_of_list_ranks_system, topk=256):
+#         all_nodes = []
 
-        node_ids = set()
-        for nodes in list_of_list_ranks_system:
-            for node in nodes:
-                content = node.get_content()
-                if content not in node_ids:
-                    all_nodes.append(node)
-                    node_ids.add(content)
-        all_nodes = sorted(all_nodes, key=lambda node: node.score, reverse=True)
-        topk = min(len(all_nodes), topk)
-        # print("simple fusion后数量:", topk)
-        return all_nodes[:topk]
+#         node_ids = set()
+#         for nodes in list_of_list_ranks_system:
+#             for node in nodes:
+#                 content = node.get_content()
+#                 if content not in node_ids:
+#                     all_nodes.append(node)
+#                     node_ids.add(content)
+#         all_nodes = sorted(all_nodes, key=lambda node: node.score, reverse=True)
+#         topk = min(len(all_nodes), topk)
+#         # print("simple fusion后数量:", topk)
+#         return all_nodes[:topk]
 
-    # 倒数排序融合
-    @classmethod
-    def reciprocal_rank_fusion(self, list_of_list_ranks_system, K=60, topk=256):
-        from collections import defaultdict
-        rrf_map = defaultdict(float)
-        text_to_node = {}
-        for rank_list in list_of_list_ranks_system:
-            for rank, item in enumerate(rank_list, 1):
-                content = item.get_content()
-                text_to_node[content] = item
-                rrf_map[content] += 1 / (rank + K)
-        sorted_items = sorted(rrf_map.items(), key=lambda x: x[1], reverse=True)
+#     # 倒数排序融合
+#     @classmethod
+#     def reciprocal_rank_fusion(self, list_of_list_ranks_system, K=60, topk=256):
+#         from collections import defaultdict
+#         rrf_map = defaultdict(float)
+#         text_to_node = {}
+#         for rank_list in list_of_list_ranks_system:
+#             for rank, item in enumerate(rank_list, 1):
+#                 content = item.get_content()
+#                 text_to_node[content] = item
+#                 rrf_map[content] += 1 / (rank + K)
+#         sorted_items = sorted(rrf_map.items(), key=lambda x: x[1], reverse=True)
 
-        reranked_nodes: List[NodeWithScore] = []
-        for text, score in sorted_items:
-            reranked_nodes.append(text_to_node[text])
-            reranked_nodes[-1].score = score
-        topk = min(topk, len(reranked_nodes))
-        # print("rrf fusion后数量:", topk)
-        return reranked_nodes[:topk]
+#         reranked_nodes: List[NodeWithScore] = []
+#         for text, score in sorted_items:
+#             reranked_nodes.append(text_to_node[text])
+#             reranked_nodes[-1].score = score
+#         topk = min(topk, len(reranked_nodes))
+#         # print("rrf fusion后数量:", topk)
+#         return reranked_nodes[:topk]
 
-    async def _aretrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        if self.retrieval_type != 1:
-            self.sparse_retriever.filter_dict = self.filter_dict
-            sparse_nodes = await self.sparse_retriever.aretrieve(query_bundle)
-            if self.retrieval_type == 2:
-                return sparse_nodes
-        if self.retrieval_type != 2:
-            self.dense_retriever.filters = self.filters
-            dense_nodes = await self.dense_retriever.aretrieve(query_bundle)
-            if self.retrieval_type == 1:
-                return dense_nodes
+#     async def _aretrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+#         if self.retrieval_type != 1:
+#             self.sparse_retriever.filter_dict = self.filter_dict
+#             sparse_nodes = await self.sparse_retriever.aretrieve(query_bundle)
+#             if self.retrieval_type == 2:
+#                 return sparse_nodes
+#         if self.retrieval_type != 2:
+#             self.dense_retriever.filters = self.filters
+#             dense_nodes = await self.dense_retriever.aretrieve(query_bundle)
+#             if self.retrieval_type == 1:
+#                 return dense_nodes
 
-        # combine the two lists of nodes
-        # all_nodes = self.fusion(sparse_nodes, dense_nodes)
-        all_nodes = self.reciprocal_rank_fusion([sparse_nodes, dense_nodes], topk=self.topk)
-        return all_nodes
+#         # combine the two lists of nodes
+#         # all_nodes = self.fusion(sparse_nodes, dense_nodes)
+#         all_nodes = self.reciprocal_rank_fusion([sparse_nodes, dense_nodes], topk=self.topk)
+#         return all_nodes
 
-    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        # 不维护 占位
-        sparse_nodes = self.sparse_retriever.retrieve(query_bundle)
-        dense_nodes = self.dense_retriever.retrieve(query_bundle)
+#     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+#         # 不维护 占位
+#         sparse_nodes = self.sparse_retriever.retrieve(query_bundle)
+#         dense_nodes = self.dense_retriever.retrieve(query_bundle)
 
-        # combine the two lists of nodes
-        all_nodes = []
-        node_ids = set()
-        for n in sparse_nodes + dense_nodes:
-            if n.node.node_id not in node_ids:
-                all_nodes.append(n)
-                node_ids.add(n.node.node_id)
-        return all_nodes
+#         # combine the two lists of nodes
+#         all_nodes = []
+#         node_ids = set()
+#         for n in sparse_nodes + dense_nodes:
+#             if n.node.node_id not in node_ids:
+#                 all_nodes.append(n)
+#                 node_ids.add(n.node.node_id)
+#         return all_nodes
