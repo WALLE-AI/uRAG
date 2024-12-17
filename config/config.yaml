@@ -8,12 +8,16 @@ chunk_overlap: 200
 
 # 密集检索器参数
 reindex: false  # 是否从头开始构建索引
-embedding_name: 
+embedding_name: ""
 embedding_max_input_length: 8192
 vector_size: 
 embedding_cache_path: "embedding cache" 
 collection_name: "Vector_index_96974a26_8dcd_4500_b2c3_4259a61f313a_Node_test" # vector storgdb collection名字
-threshold_score: 0.6
+score_threshold: 0.6
+
+retrieval_method: semantic_search
+top_k: 5
+reranking_model: false
 
 ##设置向量数据库,
 vector_type: chroma #
@@ -43,7 +47,7 @@ f_topk_2: 10
 # 重排器参数
 r_topk: 6 # 精排topk
 r_topk_1: 6 # 精排后Fusion的topk
-reranker_name: 
+reranker_name: ""
 use_reranker: 2 # 0-->不使用 1-->ST的普通Reranker 2-->bge LLM Reranker
 r_embed_bs: 32
 r_use_efficient: 0 # 0-->不加速 1-->使用最大值选择方法加速 2-->使用熵选择方法加速

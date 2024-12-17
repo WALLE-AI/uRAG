@@ -21,13 +21,15 @@ class RetrievalService:
     @classmethod
     def retrieve(
         cls,
-        retrieval_method: str,
-        docs_index: str,
         query: str,
-        top_k: int,
-        score_threshold: Optional[float] = 0.0,
-        reranking_model: Optional[bool] = False,
+        config: dict,
     ):
+        
+        # docs_index =config['collection_name']
+        # query = query
+        # top_k = config["top_k"]
+        # score_threshold = config["score_threshold"]
+        # reranking_model = config["reranking_model"]
         all_documents = []
         threads = []
         exceptions = []
@@ -46,15 +48,12 @@ class RetrievalService:
         #     threads.append(keyword_thread)
         #     keyword_thread.start()
         # retrieval_model source with semantic
-        if RetrievalMethod.is_support_semantic_search(retrieval_method):
+        if RetrievalMethod.is_support_semantic_search(config["retrieval_method"]):
             embedding_thread = threading.Thread(
                 target=RetrievalService.embedding_search,
                 kwargs={
-                    "docs_index": docs_index,
+                    "config":config,
                     "query": query,
-                    "top_k": top_k,
-                    "score_threshold": score_threshold,
-                    "reranking_model": reranking_model,
                     "all_documents": all_documents,
                     "exceptions":exceptions
                 },
@@ -63,14 +62,14 @@ class RetrievalService:
             embedding_thread.start()
 
         # retrieval source with full text
-        if RetrievalMethod.is_support_fulltext_search(retrieval_method):
+        if RetrievalMethod.is_support_fulltext_search(config["retrieval_method"]):
             full_text_index_thread = threading.Thread(
                 target=RetrievalService.full_text_index_search,
                 kwargs={
-                    "docs_index": docs_index,
+                    "docs_index": config['collection_name'],
                     "query": query,
-                    "top_k": top_k,
-                    "reranking_model": reranking_model,
+                    "top_k": config["top_k"],
+                    "reranking_model": config["reranking_model"],
                     "all_documents": all_documents,
                     "exceptions":exceptions
                 },
@@ -85,7 +84,7 @@ class RetrievalService:
             exception_message = ";\n".join(exceptions)
             raise Exception(exception_message)
 
-        if retrieval_method == RetrievalMethod.HYBRID_SEARCH.value:
+        if config["retrieval_method"] == RetrievalMethod.HYBRID_SEARCH.value:
             pass
         return all_documents
 
@@ -117,25 +116,22 @@ class RetrievalService:
     @classmethod
     def embedding_search(
         cls,
-        docs_index: str,
+        config:dict,
         query: str,
-        top_k: int,
-        score_threshold: Optional[float],
-        reranking_model: bool,
         all_documents: list,
         exceptions:list
     ):
         try:
-            vector = Vector(docs_index)
+            vector = Vector(config)
             documents = vector.search_by_vector(
                     cls.escape_query_for_search(query),
                     search_type="similarity_score_threshold",
-                    top_k=top_k,
-                    score_threshold=score_threshold,
+                    top_k=config["top_k"],
+                    score_threshold=config["score_threshold"],
             )
 
             if documents:
-                if reranking_model:
+                if config["reranking_model"]:
                     reranker_docs = RankerApi.async_reranker_documents(query,documents)
                     all_documents.extend(reranker_docs)
                 else:

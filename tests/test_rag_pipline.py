@@ -4,6 +4,7 @@ from metaknowledge.extract_processor import ExtractProcessor
 from metaknowledge.index_process import IndexProcess
 from models.embedding import EmbeddingModel
 from urag.rag_service import RAGService
+from urag.retrieval_service import RetrievalService
 from urag.retrievers import get_sparse_retrivers
 
 
@@ -20,7 +21,19 @@ def rag_data_build_parser_to_index():
     docs = index_process.extract_text()
     loguru.logger.info(f"docs size:{len(docs)}")
     # index_process.embedding_process_index(docs)
+    ##
     get_sparse_retrivers(config,docs)
+    
+def rag_dense_retrival():
+    config = init_config()
+    query = "安全生产法有那些条例"
+    all_documents = []
+    # response = vec.search_by_vector(query,score_threshold=0.2)
+    # reranker_reponse = RankerApi.reranker_documents(query,response)
+    # loguru.logger.info(f"reponse:{reranker_reponse}")
+    all_documents = RetrievalService.retrieve(query=query,config=config)
+    loguru.logger.info(f"reponse:{all_documents}")
+    
     
     
 def test_huggingface_embedding():

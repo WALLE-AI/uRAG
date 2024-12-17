@@ -2,7 +2,7 @@ import loguru
 
 from dotenv import load_dotenv
 
-from tests.test_rag_pipline import rag_data_build_parser_to_index, test_huggingface_embedding
+from tests.test_rag_pipline import rag_data_build_parser_to_index, rag_dense_retrival, test_huggingface_embedding
 
 load_dotenv()
 

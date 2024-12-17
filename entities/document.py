@@ -17,6 +17,10 @@ class Document(BaseModel):
         documents, etc.).
     """
     metadata: Optional[dict] = Field(default_factory=dict)
+    '''
+    retrieval score
+    '''
+    score: float = 0.0
 
 
 class BaseDocumentTransformer(ABC):
