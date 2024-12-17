@@ -31,8 +31,8 @@ def merge_strings(A, B):
     merged_string = A + B[max_overlap:]
     return merged_string
 
-def get_node_content(node: BaseNode, embed_type=0, nodes: list[TextNode] = None, nodeid2idx: dict = None) -> str:
-    text: str = node.get_content()
+def get_node_content(node:Document, embed_type=0, nodes: list[TextNode] = None, nodeid2idx: dict = None) -> str:
+    text: str = node.page_content
     if embed_type == 6:
         cur_text = text
         if cur_text.count("|") >= 5 and cur_text.count("---") == 0:
@@ -252,7 +252,7 @@ class BM25Retriever(BaseRetriever):
 
     def filter(self, scores):
         top_n = scores.argsort()[::-1]
-        nodes: List[NodeWithScore] = []
+        nodes: List[Document] = []
         for ix in top_n:
             if scores[ix] <= 0:
                 break
@@ -263,7 +263,10 @@ class BM25Retriever(BaseRetriever):
                         flag = False
                         break
             if flag:
-                nodes.append(NodeWithScore(node=self._nodes[ix], score=float(scores[ix])))
+                node = self._nodes[ix]
+                node.score = float(scores[ix])
+                # nodes.append(NodeWithScore(node=self._nodes[ix], score=float(scores[ix])))
+                nodes.append(node)
             if len(nodes) == self._similarity_top_k:
                 break
 
