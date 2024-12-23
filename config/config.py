@@ -13,3 +13,4 @@ def init_config():
     for key in config:
         loguru.logger.info(f"{key}: {config[key]}")
     return config
+
