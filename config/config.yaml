@@ -59,4 +59,5 @@ retrieval_type: 3
 
 
 ##store
-STORAGE_LOCAL_PATH: "D:/LLM/project/uRAG/"
+STORAGE_LOCAL_PATH: "D:/LLM/project/uRAG/data/storge"
+STORAGE_TYPE: local

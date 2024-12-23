@@ -2,6 +2,7 @@ import loguru
 from config.config import init_config
 from metaknowledge.extract_processor import ExtractProcessor
 from metaknowledge.index_process import IndexProcess
+from metaknowledge.storage.ext_storage import Storage
 from models.embedding import EmbeddingModel
 from urag.rag_service import RAGService
 from urag.retrieval_service import RetrievalService
@@ -55,5 +56,14 @@ def test_huggingface_embedding():
     text_embedding,tokens = embedding.embed_query("你是谁")
     loguru.logger.info(f"embedding tokens:{len(text_embedding)}")
     
+    
+def test_storge_data():
+    config = init_config()
+    file_name = "D:/LLM/project/uRAG/data/files/《中华人民共和国安全生产法》（2021 年修订版）.pdf"
+    obejct_storge = Storage(config=config)
+    with open(file_name,"rb") as file:
+        data = file.read()
+        obejct_storge.save("test.pdf",data=data)
+        obejct_storge.delete("test.pdf")
     
     
