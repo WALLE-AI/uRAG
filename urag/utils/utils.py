@@ -17,11 +17,11 @@ MODEL_TOKEN_LIMIT = {
 }
 
 
-def contains_chinese(self,string):
+def contains_chinese(string):
     """Check if the string contains Chinese characters."""
-    return any(self.is_chinese(c) for c in string)
+    return any(is_chinese(c) for c in string)
 
-def is_chinese(self,uchar):
+def is_chinese(uchar):
     """Check if the character is Chinese."""
     return '\u4e00' <= uchar <= '\u9fa5'
 

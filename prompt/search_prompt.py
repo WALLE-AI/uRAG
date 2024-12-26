@@ -120,7 +120,7 @@ _rag_qa_prompt_zh = """以下是一组上下文：
 {context}
 当前日期: {current_date}
 
-基于上下文回答问题，不要盲目地逐字重复上下文。请以[citation:x]的格式引用上下文。这是用户的问题：
+基于上下文回答问题，不要盲目地逐字重复上下文。请以[citation:x]的格式引用上下文。这是用户的问题：{query}
 """
 # This is the prompt that asks the model to generate related questions to the
 # original question and the contexts.

@@ -55,8 +55,7 @@ r_use_efficient: 0 # 0-->不加速 1-->使用最大值选择方法加速 2-->使
 
 #检索策略
 retrieval_type: 3
-
-
+tools_search_api: True
 
 ##store
 STORAGE_LOCAL_PATH: "D:/LLM/project/uRAG/data/storge"

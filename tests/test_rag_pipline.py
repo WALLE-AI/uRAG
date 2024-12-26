@@ -4,17 +4,12 @@ from metaknowledge.extract_processor import ExtractProcessor
 from metaknowledge.index_process import IndexProcess
 from metaknowledge.storage.ext_storage import Storage
 from models.embedding import EmbeddingModel
-from urag.rag_service import RAGService
+from urag.rag_pipline import RAGPipline
 from urag.retrieval_service import RetrievalService
 from urag.retrievers import HybridRetriever, get_sparse_retrivers
 from llama_index.core import QueryBundle
 
 
-def rag_pipline():
-    config = init_config()
-    query = "建造大模型"
-    rag = RAGService(config)
-    rag.rag_pipline_run(query)
     
 def rag_data_build_parser_to_index():
     file_dir = "D:/LLM/project/uRAG/data/files/"
@@ -55,6 +50,15 @@ def test_huggingface_embedding():
     embedding = EmbeddingModel.get_embedding("tig_embedding_api")
     text_embedding,tokens = embedding.embed_query("你是谁")
     loguru.logger.info(f"embedding tokens:{len(text_embedding)}")
+    
+    
+def test_rag_pipline():
+    config = init_config()
+    rag = RAGPipline(config=config)
+    query = "混凝土浇筑有主要质量方案是什么，如何避免"
+    rag.rag_pipline_run(query=query)
+    
+
     
     
 def test_storge_data():

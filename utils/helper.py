@@ -15,6 +15,8 @@ import loguru
 import requests
 from typing import List, Optional, Union
 
+from entities.document import Document
+
 """Document loader helpers."""
 
 import concurrent.futures
@@ -269,9 +271,11 @@ def ddg_search_text(query:str, max_results=5):
     for idx, result in enumerate(search_results):
         loguru.logger.debug(f"搜索结果{idx + 1}：{result}")
         ##[result["body"], result["href"]]
-        reference_results.append({
+        metadata = {
                 "name": result["title"],
                 "url": result["href"],
                 "snippet": result["body"]
-        })
+        }
+        docs = Document(page_content=result["title"]+";"+result['body'],metadata=metadata)
+        reference_results.append(docs)
     return reference_results

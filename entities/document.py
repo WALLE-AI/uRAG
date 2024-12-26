@@ -1,10 +1,10 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field
-
 
 class Document(BaseModel):
     """Class for storing a piece of text and associated metadata."""
