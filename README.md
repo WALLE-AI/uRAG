@@ -8,6 +8,8 @@
 ## BenckMark
 * 支持主流的RAG评测方法，支持白盒策略和和黑盒测试
 ## 参考文献
+* 多模态RAG竞赛方案：https://github.com/i2vec/MMDocRetrievalChallenge，https://github.com/i2vec/MMDocRetrievalChallenge，https://github.com/bargav25/MultiModal_InformationRetrieval；
+* https://www.aicrowd.com/challenges/meta-crag-mm-challenge-2025 meta kdd cup竞赛多模态RAG系统
 * https://github.com/BUAADreamer/EasyRAG/tree/master/src
 * https://huggingface.co/learn/cookbook/zh-CN/advanced_rag
 * https://huggingface.co/learn/cookbook/zh-CN/rag_evaluation RAG评估体系
