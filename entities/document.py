@@ -6,6 +6,42 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
+
+class FileMetaData(BaseModel):
+    ##尽量保留较多的原文档解析数据
+    id:str= ""  ##"唯一ID"
+    name:str=""  ##"文档名称"
+    size:str=""  ##"内存大小"
+    pages:int="" ##"总页数"
+    is_edit:bool=False ##是否能够编辑
+    label:str="" ##"领域类似，比如建造、法律等"
+    format:str="" ##文档格式 比如pdf、word等
+    extra_info:Optional[dict] = Field(default_factory=dict)
+    
+class FilePageData(BaseModel):
+    id:str="唯一ID"
+    file_id:str=""
+    page_content:str
+    page_id:int ##页码ID
+    image_page_id:str ##oss/local图片url
+    
+    
+class FileChunkData(BaseModel):
+    id:str=""##"唯一ID"
+    chunk_content:str=""
+    bbox_position:Optional[list]=[]
+    metadata: Optional[dict] = Field(default_factory=dict) ##chunk所在页面page信息
+    length:str="" ##"文本长度"
+    tokens:int=0 ##"token数"
+    
+class FileEmbedData(BaseModel):
+    id:str="" ##"唯一ID"
+    text_vector: Optional[list[float]] = 0.0
+    page_image_vector: Optional[list[float]] = 0.0
+    fuse_vector: Optional[list[float]] = 0.0 ##向量
+    metadata: Optional[dict] = Field(default_factory=dict)
+
+
 class Document(BaseModel):
     """Class for storing a piece of text and associated metadata."""
 
